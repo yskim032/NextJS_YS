@@ -1,29 +1,66 @@
-import Image from "next/image";
-import { Style } from "util";
-import Head from "next/head";
+"use client";
+
+import { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import Hero from "@/components/home/hero";
-import Animation from "@/components/home/animation";
+import ProjectItem from "@/components/projects/project-item";
 
-export default function Home() {
-  return (
+export default function Projects() {
+    const [projectTexts, setProjectTexts] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-      <Layout>
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const response = await fetch("/api/notion");
+                const data = await response.json();
 
-        <Head>
-          <title>YS 포트폴리오</title>
-          <meta name="description" content="오늘도 화이팅" />
-          <link rel="icon" href="/favicon.ico"/>
-        </Head>
-        <section className="flex min-h-screen flex-col items-center justify-center text-gray-600 body-font">
-        <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
-          <Hero />
-          
-        </div>
-        </section>
-        
-      </Layout>
-     
-      
-  )
+                // ✅ 모든 properties 저장
+                setProjectTexts(data);
+            } catch (error) {
+                console.error("❌ 데이터를 불러오는 데 실패했습니다:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchData();
+    }, []);
+
+    return (
+        <Layout>
+            <main>
+                <Hero />
+                <h1 className="text-4xl font-bold sm:text-6xl text-center my-8">프로젝트 목록 <span className="pl-4 text-blue-500">({projectTexts.length}개)</span></h1>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {projectTexts.map((project, index) => (
+                        <ProjectItem key={index} project={project} />
+                    ))}
+
+                </div>
+                
+
+                {loading ? (
+                    <p>데이터 불러오는 중...</p>
+                ) : projectTexts.length > 0 ? (
+                    <ul>
+                        {projectTexts.map((project, index) => (
+                            <li key={index}>
+                                <strong>{project.name}</strong> - {project.description}
+         
+                                <ProjectItem project={project} />
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>데이터 없음</p>
+                )}
+
+
+
+            </main>
+        </Layout>
+    );
 }
+
