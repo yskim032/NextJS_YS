@@ -75,9 +75,20 @@ import ProjectItem from "@/components/projects/project-item";
 
 // ProjectItem 컴포넌트에 전달될 project의 타입을 정의합니다.
 interface Project {
-  name: string;
-  description: string;
   cover: string | null;
+  properties: {
+    Name: {
+      title: {
+        plain_text: string;
+      }[];
+    };
+    Description: {
+      rich_text: {
+        plain_text: string;
+      }[];
+    };
+  };
+  url: string;
 }
 
 export default function Projects() {
