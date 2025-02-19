@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { Client } from "@notionhq/client";
-import { useEffect } from "react";
 
 // Notion 클라이언트 생성
 const notion = new Client({
@@ -27,4 +26,3 @@ export async function GET() {
     return NextResponse.json({ error: "Failed to fetch Notion data" }, { status: 500 });
   }
 }
-
