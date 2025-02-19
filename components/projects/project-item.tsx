@@ -20,7 +20,7 @@ interface ProjectItemProps {
 }
 
 export default function ProjectItem({ project }: ProjectItemProps) {
-  const imageUrl = project?.cover; // project가 undefined일 경우를 대비
+  const imageUrl = project?.cover;
   const title = project?.properties?.Name?.title?.[0]?.plain_text;
 
   return (
@@ -30,23 +30,23 @@ export default function ProjectItem({ project }: ProjectItemProps) {
           <Image
             className="rounded-t-xl"
             src={imageUrl}
-            alt={title || "프로젝트 이미지"} // title이 없을 경우 대체 텍스트 제공
+            alt={title || "프로젝트 이미지"}
             fill
             sizes="100vw"
             style={{ objectFit: "cover" }}
             onError={(e) => {
               console.error("이미지 로딩 실패:", e);
-              console.error("이미지 URL:", imageUrl); // 이미지 URL 추가 로깅
+              console.error("이미지 URL:", imageUrl);
             }}
           />
         </div>
       )}
 
       <h1 className="text-xl font-bold mt-4">
-        {project?.properties?.Name?.title?.[0]?.plain_text || "제목 없음"} {/* 제목이 없을 경우 대체 텍스트 제공 */}
+        {project?.properties?.Name?.title?.[0]?.plain_text || "제목 없음"}
       </h1>
       <p className="mt-2 text-gray-700">
-        {project?.properties?.Description?.rich_text?.[0]?.plain_text || "설명 없음"} {/* 설명이 없을 경우 대체 텍스트 제공 */}
+        {project?.properties?.Description?.rich_text?.[0]?.plain_text || "설명 없음"}
       </p>
 
       <p className="mt-2">

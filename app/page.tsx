@@ -3,14 +3,12 @@
 import { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import Hero from "@/components/home/hero";
-import dynamic from "next/dynamic"; // 동적 임포트를 위한 next/dynamic
+import dynamic from "next/dynamic";
 
-// ProjectItem 컴포넌트를 동적으로 임포트
 const ProjectItem = dynamic(() => import("@/components/projects/project-item"), {
-  ssr: false, // 서버 사이드 렌더링 비활성화
+  ssr: false,
 });
 
-// ProjectItem 컴포넌트에 전달될 project의 타입을 정의합니다.
 interface Project {
   cover: string | null;
   properties: {
@@ -31,7 +29,7 @@ interface Project {
 }
 
 export default function Projects() {
-  const [projectTexts, setProjectTexts] = useState<Project[]>([]); // 명시적인 타입 지정
+  const [projectTexts, setProjectTexts] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,15 +39,13 @@ export default function Projects() {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data: Project[] = await response.json(); // 명시적인 타입 지정
+        const data: Project[] = await response.json();
 
         setProjectTexts(
           data.map((project) => ({
             ...project,
             name: project.properties?.Name?.title?.[0]?.plain_text || "제목 없음",
-            description:
-              project.properties?.Description?.rich_text?.[0]?.plain_text ||
-              "설명 없음",
+            description: project.properties?.Description?.rich_text?.[0]?.plain_text || "설명 없음",
           }))
         );
       } catch (error) {
@@ -78,9 +74,18 @@ export default function Projects() {
 
         {loading ? (
           <p>데이터 불러오는 중...</p>
-        ) : projectTexts.length === 0 ? (
+        ) : projectTexts.length > 0 ? (
+          <ul>
+            {projectTexts.map((project, index) => (
+              <li key={index}>
+                <strong>{project.name}</strong>
+                <ProjectItem project={project} />
+              </li>
+            ))}
+          </ul>
+        ) : (
           <p>데이터 없음</p>
-        ) : null}
+        )}
       </main>
     </Layout>
   );
