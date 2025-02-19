@@ -21,8 +21,8 @@ export async function GET() {
     // console.log("📌 Notion 데이터:", response.results); // 콘솔에서 확인
 
     return NextResponse.json(response.results);
-  } catch (error) {
-    // console.error("❌ Notion API 호출 실패:", error);
+  } catch { // error 변수 제거
+    // console.error("❌ Notion API 호출 실패:"); // error 변수 제거 후 콘솔 에러를 남기려면 이렇게 수정
     return NextResponse.json({ error: "Failed to fetch Notion data" }, { status: 500 });
   }
 }
