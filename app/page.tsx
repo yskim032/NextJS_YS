@@ -14,13 +14,13 @@ const ProjectItem = dynamic(() => import("@/components/projects/project-item"), 
 interface Project {
   cover: string | null;
   properties: {
-    Name: {
-      title: {
+    Name?: {
+      title?: {
         plain_text: string;
       }[];
     };
-    Description: {
-      rich_text: {
+    Description?: {
+      rich_text?: {
         plain_text: string;
       }[];
     };
@@ -78,18 +78,9 @@ export default function Projects() {
 
         {loading ? (
           <p>데이터 불러오는 중...</p>
-        ) : projectTexts.length > 0 ? (
-          <ul>
-            {projectTexts.map((project, index) => (
-              <li key={index}>
-                <strong>{project.name}</strong>
-                <ProjectItem project={project} />
-              </li>
-            ))}
-          </ul>
-        ) : (
+        ) : projectTexts.length === 0 ? (
           <p>데이터 없음</p>
-        )}
+        ) : null}
       </main>
     </Layout>
   );

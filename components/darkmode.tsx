@@ -1,19 +1,19 @@
-"use client"; // 클라이언트 컴포넌트로 설정
+"use client";
 
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 
 export default function DarkModeButton() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false); // 초기 렌더링 시 클라이언트 사이드인지 확인
+  // 클라이언트 환경인지 확인 후 useTheme 사용
+  const isClient = typeof window !== "undefined";
+  const { theme, setTheme } = isClient ? useTheme() : { theme: "light", setTheme: () => {} };
+  const [mounted, setMounted] = useState(isClient);
 
   useEffect(() => {
-    setMounted(true); // 클라이언트 사이드 렌더링 완료 후 mounted를 true로 설정
-  }, []);
+    if (isClient) setMounted(true);
+  }, [isClient]);
 
-  if (!mounted) {
-    return null; // 서버 사이드 렌더링 시에는 null 반환
-  }
+  if (!mounted || !theme) return null;
 
   return (
     <button
