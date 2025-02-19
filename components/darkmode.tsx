@@ -1,55 +1,87 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTheme } from "next-themes";
+import Layout from "@/components/layout";
+import Hero from "@/components/home/hero";
+import dynamic from "next/dynamic"; // 동적 임포트를 위한 next/dynamic
 
-export default function DarkModeButton() {
-  const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
+// ProjectItem 컴포넌트를 동적으로 임포트
+const ProjectItem = dynamic(() => import("@/components/projects/project-item"), {
+  ssr: false, // 서버 사이드 렌더링 비활성화
+});
+
+// ProjectItem 컴포넌트에 전달될 project의 타입을 정의합니다.
+interface Project {
+  cover: string | null;
+  properties: {
+    Name: {
+      title: {
+        plain_text: string;
+      }[];
+    } | undefined;
+    Description: {
+      rich_text: {
+        plain_text: string;
+      }[];
+    } | undefined;
+  };
+  url: string;
+  name: string;
+  description: string;
+}
+
+export default function Projects() {
+  const [projectTexts, setProjectTexts] = useState<Project[]>([]); // 명시적인 타입 지정
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setMounted(true);
+    async function fetchData() {
+      try {
+        const response = await fetch("/api/notion");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: Project[] = await response.json(); // 명시적인 타입 지정
+
+        setProjectTexts(
+          data.map((project) => ({
+            ...project,
+            name: project.properties?.Name?.title?.[0]?.plain_text || "제목 없음",
+            description:
+              project.properties?.Description?.rich_text?.[0]?.plain_text ||
+              "설명 없음",
+          }))
+        );
+      } catch (error) {
+        console.error("❌ 데이터를 불러오는 데 실패했습니다:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
   }, []);
 
-  if (!mounted) return null;
-
   return (
-    <button
-      className="inline-flex items-center justify-center dark:bg-white border-0 py-1 px-2 focus:outline-none hover:bg-gray-200 hover:text-orange-500 rounded text-base mt-4 md:mt-0 transition-colors duration-300 dark:text-yellow-300"
-      type="button"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-    >
-      {/* Light Mode 아이콘 (라이트 모드에서 보임) */}
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        strokeWidth="1.5"
-        stroke="currentColor"
-        fill="none"
-        className="block dark:hidden h-5 w-5 transition-colors duration-300"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
-        />
-      </svg>
+    <Layout>
+      <main>
+        <Hero />
+        <h1 className="text-4xl font-bold sm:text-6xl text-center my-8">
+          프로젝트 목록 <span className="pl-4 text-blue-500">({projectTexts.length}개)</span>
+        </h1>
 
-      {/* Dark Mode 아이콘 (다크 모드에서 보임) */}
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        strokeWidth="1.5"
-        stroke="currentColor"
-        fill="none"
-        className="hidden dark:block h-5 w-5 transition-colors duration-300"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
-        />
-      </svg>
-    </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {projectTexts.map((project, index) => (
+            <ProjectItem key={index} project={project} />
+          ))}
+        </div>
+
+        {loading ? (
+          <p>데이터 불러오는 중...</p>
+        ) : projectTexts.length === 0 ? (
+          <p>데이터 없음</p>
+        ) : null}
+      </main>
+    </Layout>
   );
 }
