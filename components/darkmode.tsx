@@ -4,16 +4,14 @@ import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 
 export default function DarkModeButton() {
-  // 클라이언트 환경인지 확인 후 useTheme 사용
-  const isClient = typeof window !== "undefined";
-  const { theme, setTheme } = isClient ? useTheme() : { theme: "light", setTheme: () => {} };
-  const [mounted, setMounted] = useState(isClient);
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
-    if (isClient) setMounted(true);
-  }, [isClient]);
+    setMounted(true);
+  }, []);
 
-  if (!mounted || !theme) return null;
+  if (!mounted) return null;
 
   return (
     <button
