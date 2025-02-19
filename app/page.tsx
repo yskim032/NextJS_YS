@@ -89,6 +89,8 @@ interface Project {
     };
   };
   url: string;
+  name: string;
+  description: string;
 }
 
 export default function Projects() {
@@ -104,7 +106,11 @@ export default function Projects() {
         }
         const data: Project[] = await response.json(); // 명시적인 타입 지정
 
-        setProjectTexts(data);
+        setProjectTexts(data.map(project => ({
+          ...project,
+          name: project.properties?.Name?.title?.[0]?.plain_text || "제목 없음",
+          description: project.properties?.Description?.rich_text?.[0]?.plain_text || "설명 없음"
+        })));
       } catch (error) {
         console.error("❌ 데이터를 불러오는 데 실패했습니다:", error);
       } finally {
@@ -135,7 +141,7 @@ export default function Projects() {
           <ul>
             {projectTexts.map((project, index) => (
               <li key={index}>
-                <strong>{project.name}</strong> - {project.description}
+                <strong>{project.name}</strong>
                 <ProjectItem project={project} />
               </li>
             ))}
